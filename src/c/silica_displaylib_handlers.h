@@ -14,5 +14,6 @@
 
 void silica_display_handler_send_linux_started();
 void silica_display_handler_send_jackd_started();
+void silica_display_handler_send_cyperus_started();
 
 #endif

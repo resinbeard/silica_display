@@ -18,3 +18,8 @@ void silica_display_handler_send_jackd_started() {
   silica_display_send_message(id, (unsigned int)1, "        ");
 } /* silica_display_handler_send_jackd_started */
 
+void silica_display_handler_send_cyperus_started() {
+  unsigned int id = silica_display_get_id();
+  silica_display_send_message(id, (unsigned int)2, "        ");
+} /* silica_display_handler_send_cyperus_started */
+

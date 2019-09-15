@@ -18,7 +18,11 @@ int main(void) {
   sleep(1);
   
   silica_display_handler_send_jackd_started();
-  
+
+  sleep(1);
+
+  silica_display_handler_send_cyperus_started();
+
   while(1) {} ;
   
 }
