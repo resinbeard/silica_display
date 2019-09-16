@@ -85,18 +85,18 @@ silica_display_message_response_t *silica_display_message_response_init(unsigned
 } /* silica_display_message_response_init */
 
 unsigned char *silica_display_send_message(unsigned char id, unsigned char command, unsigned char *data) {
-  unsigned char message[12];
+  unsigned char message[256];
   unsigned char *message_in = NULL;
   silica_display_message_response_t *message_response = NULL;
   silica_display_message_response_t *temp_message_response = NULL;
   
-  binary_integer.i = id;
   message[0] = (unsigned)id & 0xff;
   message[1] = (unsigned)id >> 8;
   
-  binary_integer.i = command;
   message[2] = (unsigned)command & 0xff;
   message[3] = (unsigned)command >> 8;
+
+  memcpy(message+4, data, strlen(data)+1);
   
   /* should check that data is less than
      our maximum data size */
@@ -157,25 +157,19 @@ void silica_display_thread(void *arg) {
       printf("deq'd\n");
 
       printf("sizeof(temp_message): %d\n", sizeof(temp_message));
-      for(n=0; n<12; n++)
-	printf("temp_message[%d]: %c\n", n, temp_message[n]);
       
-      write(fd, temp_message, 12);
+      write(fd, temp_message, 256);
       printf("written\n");
     }
 
-    temp_message = malloc(sizeof(unsigned char) * 12);
-    n = read(fd, temp_message, sizeof(unsigned char) * 12);
+    temp_message = malloc(sizeof(unsigned char) * 256);
+    n = read(fd, temp_message, sizeof(unsigned char) * 256);
     if (n > 0) {
       printf("reading\n");
-      int i;
-      for (i = 0; i < 12; i++) {
-	printf("%c",temp_message[i]);
-      }
 
-      binary_integer.c[0] = temp_message[0];
-      binary_integer.c[1] = temp_message[1];
-      response_id = binary_integer.i;
+      response_id = temp_message[1];
+      response_id = response_id << 8;
+      response_id |= temp_message[0];
 
       temp_message_response = global_message_response_list;
       while(temp_message_response != NULL) {

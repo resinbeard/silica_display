@@ -20,6 +20,8 @@ Copyright 2015 murray foster */
 #include <string.h> //memset
 #include <stdlib.h> //exit(0);
 
+#include "osc_handlers.h"
+
 volatile char *send_host_out;
 volatile char *send_port_out;
 lo_server_thread lo_thread;
@@ -35,13 +37,13 @@ int osc_change_address(char *new_host_out, char *new_port_out) {
   strcpy(send_port_out, new_port_out);
   
   lo_address lo_addr_send = lo_address_new((const char*)new_host_out, (const char*)new_port_out);
-  lo_send(lo_addr_send,"/cyperus/address", "ss", new_host_out, new_port_out);
+  lo_send(lo_addr_send,"/silica/display/address", "ss", new_host_out, new_port_out);
   free(lo_addr_send);
   printf("changed osc server and port to: %s:%s\n", new_host_out, new_port_out);
   return 0;
 }
 
-int osc_setup(char *osc_port_in, char *osc_port_out, char *addr_out) {
+int osc_setup(char *osc_port_in, char *osc_port_out) {
   send_host_out = "127.0.0.1";
   send_port_out = osc_port_out;
 
@@ -56,7 +58,8 @@ int osc_setup(char *osc_port_in, char *osc_port_out, char *addr_out) {
   /* below is for debug, add method that will match any path and args */
   /* lo_server_thread_add_method(st, NULL, NULL, generic_handler, NULL); */
 
-  lo_server_thread_add_method(lo_thread, "/cyperus/address", "ss", osc_address_handler, NULL);
+  lo_server_thread_add_method(lo_thread, "/silica/display/address", "ss", osc_address_handler, NULL);
+  lo_server_thread_add_method(lo_thread, "/silica/display/startup_system_process", "si", osc_send_startup_system_process_handler, NULL);
   
 
   lo_server_thread_start(lo_thread);

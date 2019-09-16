@@ -52,7 +52,7 @@ Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 
 byte inByte;
 boolean received = false;   // store if Arduino received something
-byte global_incoming_msg[12];
+byte global_incoming_msg[256];
 int global_msg_count = 0;
 
 void testdrawtext(char *text, uint16_t color) {
@@ -85,19 +85,18 @@ void setup(void) {
 
   tft.setTextColor(ST77XX_GREEN);
   tft.setTextSize(1);
-  tft.print("linux 4.14.83-gentoo");
 }
 
 
 void loop() {
 
    if( Serial.available()) {
-     while( Serial.available() && global_msg_count < 12) {
+     while( Serial.available() && global_msg_count < 256) {
        byte inByte = (byte)Serial.read();
        global_incoming_msg[global_msg_count] = inByte;
        global_msg_count++;
      }
-    if(global_msg_count == 12)
+    if(global_msg_count == 256)
      received = true;
    }
 
@@ -105,18 +104,22 @@ void loop() {
     unsigned int cmd = global_incoming_msg[3];
     cmd = cmd << 8;
     cmd |= global_incoming_msg[2];
-
+    int i;
     if( cmd == 0 ) {
-      tft.print("                OKAY\njackd");
-      Serial.write(global_incoming_msg, 12);
+      for(i=4; i<83; i++) {
+	if( i == 80 )
+	  if( char(global_incoming_msg[i]) == 'B'  )
+	    tft.setTextColor(ST77XX_RED);
+          tft.print(char(global_incoming_msg[i]));
+      }
+      tft.print("\n");
+      if( char(global_incoming_msg[80]) == 'B' )
+        tft.setTextColor(ST77XX_GREEN);
+      Serial.write(global_incoming_msg, 256);
     } else if( cmd == 1 ) {
       tft.print("                               OKAY\ncyperus");
-      Serial.write(global_incoming_msg, 12);
-    } else if( cmd == 2 ) {
-      tft.print("                             OKAY\nSOMETHING ELSE");
-      Serial.write(global_incoming_msg, 12);
+      Serial.write(global_incoming_msg, 256);
     }
-
 
     global_msg_count = 0;
     received = false;

@@ -12,8 +12,6 @@
 
 #include "rtqueue.h"
 
-void silica_display_handler_send_linux_started();
-void silica_display_handler_send_jackd_started();
-void silica_display_handler_send_cyperus_started();
+void silica_display_handler_send_startup_system_process(char *procname, int status);
 
 #endif
