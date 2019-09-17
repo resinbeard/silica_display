@@ -66,8 +66,6 @@ void testdrawtext(char *text, uint16_t color) {
 
 void redraw_world(void) {
   tft.fillScreen(ST77XX_BLACK);
-  tft.setCursor(0,0);
-
   tft.setTextSize(2);
   tft.setTextColor(ST77XX_WHITE);
   tft.setCursor(0, 0);
@@ -148,10 +146,10 @@ void serialEvent() {
         tft.setTextColor(ST77XX_GREEN);
       Serial.write(global_incoming_msg, 256);
     } else if( cmd == 1 ) {
-      redraw_world();
+      // redraw_world();
       Serial.write(global_incoming_msg, 256);
     } else if( cmd == 2 ) {
-
+      redraw_world();
       float total;
       float cpu0;
       float cpu1;
@@ -252,7 +250,7 @@ void serialEvent() {
       
     } else if( cmd == 4 ) {
       redraw_world();
-      Serial.write(global_incoming_msg, 256);
+      Serial.write(global_incoming_msg, sizeof(global_incoming_msg));
     }
     global_msg_count = 0;
     received = false; 
