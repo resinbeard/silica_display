@@ -90,26 +90,19 @@ unsigned char *silica_display_send_message(unsigned char id, unsigned char comma
   silica_display_message_response_t *message_response = NULL;
   silica_display_message_response_t *temp_message_response = NULL;
   
-  message[0] = 'B';
-  message[1] = 'E';
-  message[2] = 'G';
-  message[3] = 'I';
-  message[4] = 'N';
-
-  message[5] = (unsigned)id & 0xff;
-  message[6] = (unsigned)id >> 8;
+  message[0] = 0x12;
+  
+  message[1] = (unsigned)id & 0xff;
+  message[2] = (unsigned)id >> 8;
 
   printf("sending id: %d\n", id);
   
-  message[7] = (unsigned)command & 0xff;
-  message[8] = (unsigned)command >> 8;
+  message[3] = (unsigned)command & 0xff;
+  message[4] = (unsigned)command >> 8;
 
-  memcpy(message+9, data, size);
+  memcpy(message+5, data, size);
   
-  message[9+size+2] = 'S';
-  message[9+size+3] = 'T';
-  message[9+size+4] = 'O';
-  message[9+size+5] = 'P';
+  message[5+size+2] = 0x13;;
   
   /* should check that data is less than
      our maximum data size */

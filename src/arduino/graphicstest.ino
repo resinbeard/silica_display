@@ -100,52 +100,35 @@ void clearMsgDelim() {
     global_msg_delim[i] = ' ';
 }
 
+boolean escape_mode = false;
+
 void serialEvent() {
   byte inByte;
 
   while( Serial.available() ) {
     inByte = (byte)Serial.read();
-     if( receiving) {
-       if(inByte=='S') {
-       	 clearMsgDelim();
-	 global_msg_delim[0] = inByte;
-	 global_delim_count = 1;
-       } else if(inByte=='T' or inByte=='O') {
-         global_msg_delim[global_delim_count] = inByte;
-         global_delim_count++;
-       } else if(inByte=='P') {
-	 if(global_msg_delim[0] == 'S' and
-	    global_msg_delim[1] == 'T' and
-	    global_msg_delim[2] == 'O' and
-	    global_delim_count == 3) {
-            receiving = false;
-	    received = true;
-	    clearMsgDelim();
-	    global_delim_count = 0;
-	  }
-       }
-       global_incoming_msg[global_msg_count] = inByte;
-       global_msg_count++;
 
-     } else if( !receiving ) {
-       if(inByte=='B') {
-       	 clearMsgDelim();
-	 global_msg_delim[global_delim_count] = inByte;
-	 global_delim_count = 1;
-       } else if(inByte=='E' or inByte=='G' or inByte=='I') {
-	 global_msg_delim[global_delim_count] = inByte;
-	 global_delim_count++;
-       } else if(inByte=='N') {
-	 if(global_msg_delim[0] == 'B' and
-	    global_msg_delim[1] == 'E' and
-	    global_msg_delim[2] == 'G' and
-	    global_msg_delim[3] == 'I' and
-	    global_delim_count == 4) {
-            receiving = true;
-	    clearMsgDelim();
-	  }
-       }
-     }
+   if( receiving) {
+
+      if( escape_mode ) {
+        global_incoming_msg[global_msg_count] = inByte;
+        global_msg_count++;
+	escape_mode = false;
+      } else if(inByte == 0x7D) {
+        escape_mode = true;
+      } else if(inByte == 0x13) {
+        receiving = false;
+	received = true;
+      } else {
+        global_incoming_msg[global_msg_count] = inByte;
+        global_msg_count++;
+      }
+   } else if( !receiving ) {
+        if(inByte==0x12) {
+          receiving = true;
+	  global_msg_count = 0;
+        }
+      }
 
   if(received) {
     unsigned int cmd = global_incoming_msg[3];
