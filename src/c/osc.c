@@ -60,7 +60,10 @@ int osc_setup(char *osc_port_in, char *osc_port_out) {
 
   lo_server_thread_add_method(lo_thread, "/silica/display/address", "ss", osc_address_handler, NULL);
   lo_server_thread_add_method(lo_thread, "/silica/display/startup_system_process", "si", osc_send_startup_system_process_handler, NULL);
-  
+  lo_server_thread_add_method(lo_thread, "/silica/display/blank_screen", NULL, osc_send_blank_screen_handler, NULL);
+  lo_server_thread_add_method(lo_thread, "/silica/display/stats/cpu", "ffff", osc_send_status_cpu_handler, NULL);
+  lo_server_thread_add_method(lo_thread, "/silica/display/stats/mem", "ff", osc_send_status_mem_handler, NULL);
+  lo_server_thread_add_method(lo_thread, "/silica/display/stats/disk", "ff", osc_send_status_disk_handler, NULL);  
 
   lo_server_thread_start(lo_thread);
 }

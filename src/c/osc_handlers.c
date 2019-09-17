@@ -70,7 +70,62 @@ int osc_send_startup_system_process_handler(const char *path, const char *types,
   lo_send(lo_addr_send, "/silica/display/startup_system_process", "si", procname, status);
   free(lo_addr_send);
   return 0;  
-} /* osc_send_linux_started_handler */
+} /* osc_send_startup_system_process_handler */
+
+int osc_send_blank_screen_handler(const char *path, const char *types, lo_arg **argv,
+					    int argc, void *data, void *user_data)
+{
+  printf("calling send_blank_screen()\n");
+  silica_display_handler_send_blank_screen(); 
+  lo_address lo_addr_send = lo_address_new((const char *)send_host_out, (const char*)send_port_out);
+  lo_send(lo_addr_send, "/silica/display/blank_screen", NULL);
+  free(lo_addr_send);
+  return 0;  
+} /* osc_send_blank_screen_handler */
+
+int osc_send_status_cpu_handler(const char *path, const char *types, lo_arg **argv,
+					    int argc, void *data, void *user_data)
+{
+  float cpu0_idle = argv[0]->f;
+  float cpu1_idle = argv[1]->f;
+  float cpu2_idle = argv[2]->f;
+  float cpu3_idle = argv[3]->f;
+
+  float total_idle = cpu0_idle+cpu1_idle+cpu2_idle+cpu3_idle;
+  
+  silica_display_handler_send_status_cpu(400.0 - total_idle, 100.0 - cpu0_idle, 100.0 - cpu1_idle, 100.0 - cpu2_idle, 100.0 - cpu3_idle);
+  
+  lo_address lo_addr_send = lo_address_new((const char *)send_host_out, (const char*)send_port_out);
+  lo_send(lo_addr_send, "/silica/display/stats/cpu", "ffff", cpu0_idle, cpu1_idle, cpu2_idle, cpu3_idle);
+  free(lo_addr_send);
+  return 0;  
+} /* osc_send_status_cpu_handler */
+
+int osc_send_status_mem_handler(const char *path, const char *types, lo_arg **argv,
+			       int argc, void *data, void *user_data)
+{
+  float mem = argv[0]->f;
+  float total = argv[1]->f;
+  silica_display_handler_send_status_mem(mem, total);
+  lo_address lo_addr_send = lo_address_new((const char *)send_host_out, (const char*)send_port_out);
+  lo_send(lo_addr_send, "/silica/display/stats/mem", "ff", mem, total);
+  free(lo_addr_send);
+  return 0;  
+} /* osc_send_status_mem_handler */
+
+int osc_send_status_disk_handler(const char *path, const char *types, lo_arg **argv,
+				int argc, void *data, void *user_data)
+{
+  float disk = argv[0]->f;
+  float total = argv[1]->f;
+  silica_display_handler_send_status_disk(disk, total);
+  
+  lo_address lo_addr_send = lo_address_new((const char *)send_host_out, (const char*)send_port_out);
+  lo_send(lo_addr_send, "/silica/display/stats/disk", "ff", disk, total);
+  free(lo_addr_send);
+  return 0;
+} /* osc_send_status_disk_handler */
+
 
 char *int_to_str(int x) {
   char *buffer = malloc(sizeof(char) * 13);

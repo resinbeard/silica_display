@@ -23,7 +23,7 @@ typedef struct silica_display_message_response {
   struct silica_display_message_response *prev;
 } silica_display_message_response_t;
 
-unsigned char *silica_display_send_message(unsigned char id, unsigned char command, unsigned char *data);
+unsigned char *silica_display_send_message(unsigned char id, unsigned char command, unsigned char *data, size_t size);
 unsigned int silica_display_get_id();
 void silica_display_thread(void *arg);
 int silica_display_setup(char *portname);

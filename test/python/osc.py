@@ -24,8 +24,16 @@ def test_silica_display(dest):
     liblo.send(dest, "/silica/display/startup_system_process", "linux 4.14.83-gentoo", 0)
     response = responses.get()
     print('response', response)
-
+    
     liblo.send(dest, "/silica/display/startup_system_process", "linux 4.14.83-gentoo", 1)
+    response = responses.get()
+    print('response', response)
+
+    liblo.send(dest, "/silica/display/startup_system_process", "jackd", 0)
+    response = responses.get()
+    print('response', response)
+    
+    liblo.send(dest, "/silica/display/startup_system_process", "jackd", 1)
     response = responses.get()
     print('response', response)
     

@@ -84,19 +84,32 @@ silica_display_message_response_t *silica_display_message_response_init(unsigned
   message_response->prev = NULL;
 } /* silica_display_message_response_init */
 
-unsigned char *silica_display_send_message(unsigned char id, unsigned char command, unsigned char *data) {
+unsigned char *silica_display_send_message(unsigned char id, unsigned char command, unsigned char *data, size_t size) {
   unsigned char message[256];
   unsigned char *message_in = NULL;
   silica_display_message_response_t *message_response = NULL;
   silica_display_message_response_t *temp_message_response = NULL;
   
-  message[0] = (unsigned)id & 0xff;
-  message[1] = (unsigned)id >> 8;
-  
-  message[2] = (unsigned)command & 0xff;
-  message[3] = (unsigned)command >> 8;
+  message[0] = 'B';
+  message[1] = 'E';
+  message[2] = 'G';
+  message[3] = 'I';
+  message[4] = 'N';
 
-  memcpy(message+4, data, strlen(data)+1);
+  message[5] = (unsigned)id & 0xff;
+  message[6] = (unsigned)id >> 8;
+
+  printf("sending id: %d\n", id);
+  
+  message[7] = (unsigned)command & 0xff;
+  message[8] = (unsigned)command >> 8;
+
+  memcpy(message+9, data, size);
+  
+  message[9+size+2] = 'S';
+  message[9+size+3] = 'T';
+  message[9+size+4] = 'O';
+  message[9+size+5] = 'P';
   
   /* should check that data is less than
      our maximum data size */
@@ -125,6 +138,7 @@ unsigned char *silica_display_send_message(unsigned char id, unsigned char comma
       temp_message_response->prev->next = temp_message_response->next;
       free(temp_message_response->response_queue);
       free(temp_message_response);
+      break;
     }
     temp_message_response = temp_message_response->next;
   }
@@ -148,7 +162,7 @@ void silica_display_thread(void *arg) {
   
   unsigned char *temp_message = NULL;
   int n;
-  int response_id = 0;
+  unsigned int response_id = 0;
   silica_display_message_response_t *temp_message_response = NULL;
   
   while(global_exit == 0) {
@@ -171,6 +185,8 @@ void silica_display_thread(void *arg) {
       response_id = response_id << 8;
       response_id |= temp_message[0];
 
+      printf("response_id: %d\n", response_id);
+      
       temp_message_response = global_message_response_list;
       while(temp_message_response != NULL) {
 	if(response_id == temp_message_response->id)

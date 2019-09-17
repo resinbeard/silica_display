@@ -28,5 +28,15 @@ int osc_address_handler(const char *path, const char *types, lo_arg ** argv,
 int osc_send_startup_system_process_handler(const char *path, const char *types, lo_arg **argv,
 					    int argc, void *data, void *user_data);
 
+int osc_send_blank_screen_handler(const char *path, const char *types, lo_arg **argv,
+				  int argc, void *data, void *user_data);
+
+int osc_send_status_cpu_handler(const char *path, const char *types, lo_arg **argv,
+				int argc, void *data, void *user_data);
+int osc_send_status_mem_handler(const char *path, const char *types, lo_arg **argv,
+			       int argc, void *data, void *user_data);
+int osc_send_status_disk_handler(const char *path, const char *types, lo_arg **argv,
+				 int argc, void *data, void *user_data);
+
 
 #endif
