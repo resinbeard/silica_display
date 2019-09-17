@@ -100,7 +100,7 @@ void clearMsgDelim() {
 
 boolean escape_mode = false;
 
-void serialEvent() {
+void loop() {
   byte inByte;
 
   while( Serial.available() ) {
@@ -252,13 +252,11 @@ void serialEvent() {
       redraw_world();
       Serial.write(global_incoming_msg, sizeof(global_incoming_msg));
     }
+    Serial.flush();
     global_msg_count = 0;
     received = false; 
   }
 
   }
-    
-}
 
-void loop() {
 }
