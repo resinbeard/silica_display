@@ -107,49 +107,51 @@ void loop() {
     inByte = (byte)Serial.read();
 
    if( receiving) {
-
       if( escape_mode ) {
-        global_incoming_msg[global_msg_count] = inByte;
-        global_msg_count++;
 	escape_mode = false;
       } else if(inByte == 0x7D) {
         escape_mode = true;
+
       } else if(inByte == 0x13) {
         receiving = false;
 	received = true;
-      } else {
-        global_incoming_msg[global_msg_count] = inByte;
-        global_msg_count++;
       }
+      global_incoming_msg[global_msg_count] = inByte;
+      global_msg_count++;
    } else if( !receiving ) {
         if(inByte==0x12) {
           receiving = true;
-	  global_msg_count = 0;
+	  global_incoming_msg[global_msg_count] = 0x12;
+          global_msg_count = 1;
         }
       }
 
   if(received) {
-    unsigned int cmd = global_incoming_msg[3];
+    unsigned int cmd = global_incoming_msg[4];
     cmd = cmd << 8;
-    cmd |= global_incoming_msg[2];
+    cmd |= global_incoming_msg[3];
     int i;
 
     if( cmd == 0 ) {
-      for(i=4; i<83; i++) {
-	if( i == 80 )
+      for(i=5; i<84; i++) {
+	if( i == 81 )
 	  if( char(global_incoming_msg[i]) == 'B'  )
 	    tft.setTextColor(ST77XX_RED);
           tft.print(char(global_incoming_msg[i]));
       }
       tft.print("\n");
-      if( char(global_incoming_msg[80]) == 'B' )
+      if( char(global_incoming_msg[81]) == 'B' )
         tft.setTextColor(ST77XX_GREEN);
-      Serial.write(global_incoming_msg, 256);
+	
+      Serial.write(global_incoming_msg, global_msg_count);
     } else if( cmd == 1 ) {
       // redraw_world();
-      Serial.write(global_incoming_msg, 256);
+      Serial.write(global_incoming_msg, global_msg_count);
     } else if( cmd == 2 ) {
+     Serial.write(global_incoming_msg, global_msg_count);
+
       redraw_world();
+
       float total;
       float cpu0;
       float cpu1;
@@ -157,34 +159,34 @@ void loop() {
       float cpu3;
       unsigned long tempval;
 
-      tempval = (global_incoming_msg[7] << 24) |
-                (global_incoming_msg[6] << 16) |
-	        (global_incoming_msg[5] << 8) |
-	        (global_incoming_msg[4]);
+      tempval = (global_incoming_msg[8] << 24) |
+                (global_incoming_msg[7] << 16) |
+	        (global_incoming_msg[6] << 8) |
+	        (global_incoming_msg[5]);
       total = *(float *)&tempval;
 
-      tempval = (global_incoming_msg[11] << 24) |
-                (global_incoming_msg[10] << 16) |
-       	        (global_incoming_msg[9] << 8) |
-	        (global_incoming_msg[8]);
+      tempval = (global_incoming_msg[12] << 24) |
+                (global_incoming_msg[11] << 16) |
+       	        (global_incoming_msg[10] << 8) |
+	        (global_incoming_msg[9]);
       cpu0 = *(float *)&tempval;
 
-      tempval = (global_incoming_msg[15] << 24) |
-                (global_incoming_msg[14] << 16) |
-	        (global_incoming_msg[13] << 8) |
-	        (global_incoming_msg[12]);
+      tempval = (global_incoming_msg[16] << 24) |
+                (global_incoming_msg[15] << 16) |
+	        (global_incoming_msg[14] << 8) |
+	        (global_incoming_msg[13]);
       cpu1 = *(float *)&tempval;
       
-      tempval = (global_incoming_msg[19] << 24) |
-                (global_incoming_msg[18] << 16) |
-   	        (global_incoming_msg[17] << 8) |
-	        (global_incoming_msg[16]);
+      tempval = (global_incoming_msg[20] << 24) |
+                (global_incoming_msg[19] << 16) |
+   	        (global_incoming_msg[18] << 8) |
+	        (global_incoming_msg[17]);
       cpu2 = *(float *)&tempval;
 
-      tempval = (global_incoming_msg[23] << 24) |
-                (global_incoming_msg[22] << 16) |
-	        (global_incoming_msg[21] << 8) |
-	        (global_incoming_msg[20]);
+      tempval = (global_incoming_msg[24] << 24) |
+                (global_incoming_msg[23] << 16) |
+	        (global_incoming_msg[22] << 8) |
+	        (global_incoming_msg[21]);
       cpu3 = *(float *)&tempval;
 
       tft.setTextColor(ST77XX_WHITE);
@@ -209,7 +211,6 @@ void loop() {
       tft.print("cpu3: ");
       tft.print(cpu3);
       tft.print("%\n");
-      Serial.write(global_incoming_msg, 256);
 
     } else if( cmd == 3 ) {
 
