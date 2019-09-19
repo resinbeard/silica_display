@@ -160,7 +160,7 @@ void silica_display_thread(void *arg) {
   
   unsigned char *temp_message = NULL;
   unsigned char *msg_buffer = NULL;
-  int n. o;
+  int n, i;
   unsigned int response_id = 0;
   silica_display_message_response_t *temp_message_response = NULL;
   
