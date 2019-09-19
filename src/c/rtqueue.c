@@ -30,6 +30,12 @@ int enqueue_is_waiting = 0;
 pthread_mutex_t enqueue_is_waiting_mutex;
 pthread_cond_t enqueue_is_waiting_cond;
 
+typedef struct rtqueue_item {
+
+  size_t size;
+  unsigned char *data;
+} rtqueue_item_t;
+
 typedef struct queue
 {
   int head;
@@ -48,6 +54,15 @@ rtqueue_init(int recordlimit)
   rtq->tail = 0;
   rtq->recordlimit = recordlimit;
   return rtq;
+}
+
+rtqueue_item_t *
+rtqueue_item_init(unsigned char *data, size_t size)
+{
+  rtqueue_item_t *rtq_item = malloc(sizeof(rtqueue_item_t));
+  rtq_item->data = data;
+  rtq_item->size = size;
+  return rtq_item;
 }
 
 int
@@ -77,7 +92,7 @@ rtqueue_isempty(rtqueue_t *rtq)
 }
 
 int
-rtqueue_enq(rtqueue_t *rtq, unsigned char *data)
+rtqueue_enq(rtqueue_t *rtq, rtqueue_item_t *data)
 {
   /* if queue is full, wait */
   if ((rtq->tail + 1) % (rtq->recordlimit + 1) == rtq->head)
@@ -101,10 +116,10 @@ rtqueue_enq(rtqueue_t *rtq, unsigned char *data)
   return 0;
 }
 
-unsigned char*
+rtqueue_item_t*
 rtqueue_deq(rtqueue_t *rtq)
 {
-  unsigned char *data;
+  rtqueue_item_t *data;
 
   /* if queue is empty, wait */
   while (rtq->head == rtq->tail)
