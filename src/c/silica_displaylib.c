@@ -91,6 +91,9 @@ unsigned char *silica_display_send_message(unsigned char id, unsigned char comma
   silica_display_message_response_t *temp_message_response = NULL;
   
   message[0] = 0x12;
+
+  printf("0x12: %d, ", 0x12);
+  printf("message[0]: %d\n", message[0]);
   
   message[1] = (unsigned)id & 0xff;
   message[2] = (unsigned)id >> 8;
@@ -107,6 +110,8 @@ unsigned char *silica_display_send_message(unsigned char id, unsigned char comma
   /* should check that data is less than
      our maximum data size */
 
+  printf("------------------------- sending id %d\n", id);
+  
   message_response = silica_display_message_response_init(id);
 
   temp_message_response = global_message_response_list;
@@ -154,7 +159,8 @@ void silica_display_thread(void *arg) {
   _set_blocking (fd, 0);		   // set no blocking
   
   unsigned char *temp_message = NULL;
-  int n;
+  unsigned char *msg_buffer = NULL;
+  int n. o;
   unsigned int response_id = 0;
   silica_display_message_response_t *temp_message_response = NULL;
   
@@ -165,20 +171,24 @@ void silica_display_thread(void *arg) {
 
       printf("sizeof(temp_message): %d\n", sizeof(temp_message));
       
-      write(fd, temp_message, 256);
+      write(fd, temp_message, 29);
       printf("written\n");
     }
 
     temp_message = malloc(sizeof(unsigned char) * 256);
     n = read(fd, temp_message, sizeof(unsigned char) * 256);
     if (n > 0) {
-      printf("reading\n");
 
-      response_id = temp_message[1];
+      printf("reading %d bytes\n", n);
+
+      response_id = temp_message[2];
       response_id = response_id << 8;
-      response_id |= temp_message[0];
+      response_id |= temp_message[1];
 
-      printf("response_id: %d\n", response_id);
+      printf("------------------------- response_id: %d\n", response_id);
+      printf("temp_message[0]: %d\n", temp_message[0]);
+      if(temp_message[0] == 0x12)
+	printf("OMFG OMFG OMFG OMFG\n");
       
       temp_message_response = global_message_response_list;
       while(temp_message_response != NULL) {
