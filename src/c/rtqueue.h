@@ -20,24 +20,16 @@ Copyright 2014 murray foster */
 #ifndef rtqueue_h__
 #define rtqueue_h__
 
-typedef struct rtqueue_item {
-
-  size_t size;
-  unsigned char *data;
-} rtqueue_item_t;
-
 typedef struct queue
 {
   int head;
   int tail;
   int recordlimit;
   int records;
-  rtqueue_item_t *queue;
+  unsigned char *queue;
 } rtqueue_t;
 
 rtqueue_t *rtqueue_init(int recordlimit);
-
-rtqueue_item_t *rtqueue_item_init(unsigned char *data, size_t size);
 
 int rtqueue_numrecords(rtqueue_t *rtq);
 
@@ -45,7 +37,7 @@ int rtqueue_isfull(rtqueue_t *rtq);
 
 int rtqueue_isempty(rtqueue_t *rtq);
 
-int rtqueue_enq(rtqueue_t *rtq, rtqueue_item_t *data);
+int rtqueue_enq(rtqueue_t *rtq, unsigned char *data);
 
 unsigned char *rtqueue_deq(rtqueue_t *rtq);
 
