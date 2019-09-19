@@ -118,14 +118,10 @@ unsigned char *silica_display_send_message(unsigned char id, unsigned char comma
     temp_message_response->next = message_response;
   }
 
-  rtqueue_item_t *rtq_item = rtqueue_item_init(message, 5+size+2);
-  
   printf("sizeof(message): %d\n", sizeof(message));
-  rtqueue_enq(global_display_queue_out, rtq_item);
+  rtqueue_enq(global_display_queue_out, message);
   printf("waiting\n");
-
-  rtqueue_item_t *rtq_item_in = rtqueue_deq(message_response->response_queue);
-  message_in = rtq_item_in->data;
+  message_in = rtqueue_deq(message_response->response_queue);
   printf("got something\n");
 
   temp_message_response = global_message_response_list;
@@ -161,18 +157,15 @@ void silica_display_thread(void *arg) {
   int n;
   unsigned int response_id = 0;
   silica_display_message_response_t *temp_message_response = NULL;
-
-  rtqueue_item_t *rtq_item, *rtq_item_in;
   
   while(global_exit == 0) {
     if( rtqueue_isempty(global_display_queue_out) == 0) {;
-      rtq_item = rtqueue_deq(global_display_queue_out);
-      temp_message = rtq_item->data;
+      temp_message = rtqueue_deq(global_display_queue_out);
       printf("deq'd\n");
 
       printf("sizeof(temp_message): %d\n", sizeof(temp_message));
       
-      write(fd, temp_message, rtq_item->size);
+      write(fd, temp_message, 256);
       printf("written\n");
     }
 
@@ -181,16 +174,16 @@ void silica_display_thread(void *arg) {
     if (n > 0) {
       printf("reading\n");
 
-      rtq_item_in = rtqueue_item_init(temp_message, n);
-      
       response_id = temp_message[1];
       response_id = response_id << 8;
       response_id |= temp_message[0];
+
+      printf("response_id: %d\n", response_id);
       
       temp_message_response = global_message_response_list;
       while(temp_message_response != NULL) {
 	if(response_id == temp_message_response->id)
-	  rtqueue_enq(temp_message_response->response_queue, rtq_item_in);
+	  rtqueue_enq(temp_message_response->response_queue, temp_message);
 	temp_message_response = temp_message_response->next;
       }
     }
