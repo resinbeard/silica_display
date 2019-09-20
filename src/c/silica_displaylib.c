@@ -89,6 +89,7 @@ unsigned char *silica_display_send_message(unsigned char id, unsigned char comma
   unsigned char *message_in = NULL;
   silica_display_message_response_t *message_response = NULL;
   silica_display_message_response_t *temp_message_response = NULL;
+  silica_display_message_response_t *message_response_prev = NULL;
   
   message[0] = 0x12;
 
@@ -129,17 +130,30 @@ unsigned char *silica_display_send_message(unsigned char id, unsigned char comma
   message_in = rtqueue_deq(message_response->response_queue);
   printf("got something\n");
 
-  temp_message_response = global_message_response_list;
-  while(temp_message_response == NULL) {
-    if(temp_message_response->id == id) {
-      temp_message_response->next->prev = temp_message_response->prev;
-      temp_message_response->prev->next = temp_message_response->next;
-      free(temp_message_response->response_queue);
-      free(temp_message_response);
-      break;
+  printf("global_message_response_list: %d\n", global_message_response_list->id);
+  
+  message_response = global_message_response_list;
+  if(global_message_response_list->id == id) {
+    printf("MATCH!\n");
+    global_message_response_list = global_message_response_list->next;
+    printf("next\n");
+
+  } else {
+    while(message_response != NULL && message_response->id != id) {
+      message_response_prev = message_response;
+      message_response = message_response->next;
     }
-    temp_message_response = temp_message_response->next;
+    if(message_response != NULL) {
+      message_response_prev->next = message_response->next;
+      message_response = message_response->next;
+      message_response->prev = message_response_prev;
+    } else {
+      printf("Could not find message_response for id: %d\n", id);
+    }
   }
+  free(message_response->response_queue);
+  free(message_response);
+
   printf("waited\n");
   return message_in;
 } /* silica_display_send_message */
@@ -199,6 +213,11 @@ void silica_display_thread(void *arg) {
 	  }
 	  msg_buffer_count++;
 
+	  if( msg_buffer_count > 255 ) {
+	    receiving = 0;
+	    msg_buffer_count = 0;
+	  }
+	  
 	} else if( !receiving ) {
 	  if( in_byte == 0x12 ) {
 	    receiving = 1;
@@ -214,13 +233,20 @@ void silica_display_thread(void *arg) {
 	    printf("%d,", msg_buffer[k]);
 	  }
 	  printf("\n");
-	  response_id = msg_buffer[1];
 
+	  response_id = (msg_buffer[2] << 8) |
+	    (msg_buffer[1]);
+	  
+	  printf("------------------------- receiving id %d\n", response_id);
 
 	  temp_message_response = global_message_response_list;
 	  while(temp_message_response != NULL) {
-	    if(response_id == temp_message_response->id)
+	    printf("looking for message response object\n");
+	    if(response_id == temp_message_response->id) {
 	      rtqueue_enq(temp_message_response->response_queue, temp_message);
+	      printf("FOUND!\n");
+	      break;
+	    }
 	    temp_message_response = temp_message_response->next;
 	  }
 	  received = 0;
