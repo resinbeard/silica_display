@@ -252,7 +252,7 @@ void loop() {
       tft.print(mem_total);
       tft.print("MB   \n");
 
-      Serial.write(global_incoming_msg, 256);
+      Serial.write(global_incoming_msg, 20);
       
     } else if( cmd == 4 ) {
             float disk = -1.0;
@@ -288,10 +288,9 @@ void loop() {
       tft.print(disk_total);
       tft.print("GB   \n");
 
-      Serial.write(global_incoming_msg, 256);
+      Serial.write(global_incoming_msg, 20);
       
 
-      Serial.write(global_incoming_msg, sizeof(global_incoming_msg));
     }
     Serial.flush();
     global_msg_count = 0;
