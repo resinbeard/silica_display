@@ -17,7 +17,7 @@ union {
 } binary_integer;
 
 typedef struct silica_display_message_response {
-  unsigned int id;
+  unsigned char *id;
   rtqueue_t *response_queue;
   struct silica_display_message_response *next;
   struct silica_display_message_response *prev;

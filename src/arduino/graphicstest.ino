@@ -118,6 +118,11 @@ void loop() {
       }
       global_incoming_msg[global_msg_count] = inByte;
       global_msg_count++;
+
+      if( global_msg_count > 255 ) {
+        receiving = 0;
+        global_msg_count = 0;
+      }
    } else if( !receiving ) {
         if(inByte==0x12) {
           receiving = true;
