@@ -126,6 +126,21 @@ int osc_send_status_disk_handler(const char *path, const char *types, lo_arg **a
   return 0;
 } /* osc_send_status_disk_handler */
 
+int osc_send_status_network_handler(const char *path, const char *types, lo_arg **argv,
+				    int argc, void *data, void *user_data)
+{
+  int ip0 = argv[0]->i;
+  int ip1 = argv[1]->i;
+  int ip2 = argv[2]->i;
+  int ip3 = argv[3]->i;
+  
+  silica_display_handler_send_status_network(ip0, ip1, ip2, ip3);
+  lo_address lo_addr_send = lo_address_new((const char *)send_host_out, (const char*)send_port_out);
+  lo_send(lo_addr_send, "/silica/display/stats/network", "iiii", ip0, ip1, ip2, ip3);
+  free(lo_addr_send);
+  return 0;
+} /* osc_send_status_disk_handler */
+
 
 char *int_to_str(int x) {
   char *buffer = malloc(sizeof(char) * 13);

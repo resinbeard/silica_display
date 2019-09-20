@@ -17,4 +17,5 @@ void silica_display_handler_send_blank_screen();
 void silica_display_handler_send_status_cpu(float total, float cpu0, float cpu1, float cpu2, float cpu3);
 void silica_display_handler_send_status_mem(float mem, float total);
 void silica_display_handler_send_status_disk(float disk, float total);
+void silica_display_handler_send_status_network(int ip0, int ip1, int ip2, int ip3);
 #endif

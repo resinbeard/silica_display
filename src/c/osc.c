@@ -64,6 +64,7 @@ int osc_setup(char *osc_port_in, char *osc_port_out) {
   lo_server_thread_add_method(lo_thread, "/silica/display/stats/cpu", "ffff", osc_send_status_cpu_handler, NULL);
   lo_server_thread_add_method(lo_thread, "/silica/display/stats/mem", "ff", osc_send_status_mem_handler, NULL);
   lo_server_thread_add_method(lo_thread, "/silica/display/stats/disk", "ff", osc_send_status_disk_handler, NULL);  
+  lo_server_thread_add_method(lo_thread, "/silica/display/stats/network", "iiii", osc_send_status_network_handler, NULL);  
 
   lo_server_thread_start(lo_thread);
 }

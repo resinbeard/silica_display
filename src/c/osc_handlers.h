@@ -37,6 +37,8 @@ int osc_send_status_mem_handler(const char *path, const char *types, lo_arg **ar
 			       int argc, void *data, void *user_data);
 int osc_send_status_disk_handler(const char *path, const char *types, lo_arg **argv,
 				 int argc, void *data, void *user_data);
+int osc_send_status_network_handler(const char *path, const char *types, lo_arg **argv,
+				    int argc, void *data, void *user_data);
 
 
 #endif

@@ -291,7 +291,32 @@ void loop() {
       Serial.write(global_incoming_msg, 20);
       
 
+    } else if( cmd == 5 ) {
+      int ip[4];
+
+      ip[0] = global_incoming_msg[5];
+      ip[1] = global_incoming_msg[6];
+      ip[2] = global_incoming_msg[7];
+      ip[3] = global_incoming_msg[8];
+
+      tft.setCursor(50, 194);
+
+      tft.setTextSize(1);
+      tft.print("network\n");
+      tft.setTextSize(2);	
+      tft.print("   ");
+      tft.print(ip[0]);
+      tft.print(".");
+      tft.print(ip[1]);
+      tft.print(".");
+      tft.print(ip[2]);
+      tft.print(".");
+      tft.print(ip[3]);
+
+      Serial.write(global_incoming_msg, 14);
+      
     }
+    
     Serial.flush();
     global_msg_count = 0;
     received = false; 

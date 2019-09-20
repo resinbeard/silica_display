@@ -139,3 +139,20 @@ void silica_display_handler_send_status_disk(float disk, float total) {
 
   free(output);
 } /* silica_display_handler_send_status_disk */
+
+void silica_display_handler_send_status_network(int ip0, int ip1, int ip2, int ip3) {
+  char *output = malloc(sizeof(char) * 250);
+  unsigned int id = silica_display_get_id();
+  int i, cmd_id;
+
+  output[0] = ip0;
+  output[1] = ip1;
+  output[2] = ip2;
+  output[3] = ip3;
+
+  cmd_id = 5;
+
+  silica_display_send_message(id, (unsigned int)cmd_id, output, 4);
+
+  free(output);
+} /* silica_display_handler_send_status_network */
