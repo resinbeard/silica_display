@@ -224,17 +224,17 @@ void loop() {
       unsigned long tempval;
 
 
-      tempval = (global_incoming_msg[11] << 24) |
-                (global_incoming_msg[10] << 16) |
-       	        (global_incoming_msg[9] << 8) |
-	        (global_incoming_msg[8]);
+      tempval = (global_incoming_msg[12] << 24) |
+                (global_incoming_msg[11] << 16) |
+       	        (global_incoming_msg[10] << 8) |
+	        (global_incoming_msg[9]);
       mem_total = *(float *)&tempval;
 
 
-      tempval = (global_incoming_msg[7] << 24) |
-                (global_incoming_msg[6] << 16) |
-	        (global_incoming_msg[5] << 8) |
-	        (global_incoming_msg[4]);
+      tempval = (global_incoming_msg[8] << 24) |
+                (global_incoming_msg[7] << 16) |
+	        (global_incoming_msg[6] << 8) |
+	        (global_incoming_msg[5]);
       mem = *(float *)&tempval;
 
       tft.setCursor(0, 94);
@@ -242,20 +242,55 @@ void loop() {
       tft.setTextSize(2);
       tft.print("mem ");
       tft.setTextSize(1);
-      tft.print("total ");
+      tft.print("used ");
       tft.setTextSize(2);	
-      tft.print(mem_total);
-      tft.print("%");
+      tft.print(mem);
+      tft.print("MB");
       tft.setTextSize(1);	
       tft.print("\n\n\n");
-      tft.print("mem: ");
-      tft.print(mem);
-      tft.print("%   \n");
+      tft.print("total: ");
+      tft.print(mem_total);
+      tft.print("MB   \n");
 
       Serial.write(global_incoming_msg, 256);
       
     } else if( cmd == 4 ) {
-      redraw_world();
+            float disk = -1.0;
+      float disk_total = -1.0;
+      unsigned long tempval;
+
+
+      tempval = (global_incoming_msg[12] << 24) |
+                (global_incoming_msg[11] << 16) |
+       	        (global_incoming_msg[10] << 8) |
+	        (global_incoming_msg[9]);
+      disk_total = *(float *)&tempval;
+
+
+      tempval = (global_incoming_msg[8] << 24) |
+                (global_incoming_msg[7] << 16) |
+	        (global_incoming_msg[6] << 8) |
+	        (global_incoming_msg[5]);
+      disk = *(float *)&tempval;
+
+      tft.setCursor(0, 144);
+
+      tft.setTextSize(2);
+      tft.print("disk ");
+      tft.setTextSize(1);
+      tft.print("used ");
+      tft.setTextSize(2);	
+      tft.print(disk);
+      tft.print("GB");
+      tft.setTextSize(1);	
+      tft.print("\n\n\n");
+      tft.print("total: ");
+      tft.print(disk_total);
+      tft.print("GB   \n");
+
+      Serial.write(global_incoming_msg, 256);
+      
+
       Serial.write(global_incoming_msg, sizeof(global_incoming_msg));
     }
     Serial.flush();

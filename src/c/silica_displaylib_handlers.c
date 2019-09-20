@@ -90,13 +90,13 @@ void silica_display_handler_send_status_mem(float mem, float total) {
   unsigned int id = silica_display_get_id();
   int i, cmd_id;
 
-  unsigned long tempval = *(unsigned long *)&mem;
+  unsigned long tempval = *(unsigned long *)&total;
   output[0] = tempval & 0x00FF;
   output[1] = (tempval & 0xFF00) >> 8;
   output[2] = (tempval & 0xFF0000) >> 16;
   output[3] = (tempval & 0xFF000000) >> 24;
 
-  tempval = *(unsigned long *)&total;
+  tempval = *(unsigned long *)&mem;
   output[4] = tempval & 0x00FF;
   output[5] = (tempval & 0xFF00) >> 8;
   output[6] = (tempval & 0xFF0000) >> 16;
@@ -112,23 +112,27 @@ void silica_display_handler_send_status_mem(float mem, float total) {
   free(output);
 } /* silica_display_handler_send_status_mem */
 
+
 void silica_display_handler_send_status_disk(float disk, float total) {
   char *output = malloc(sizeof(char) * 250);
   unsigned int id = silica_display_get_id();
   int i, cmd_id;
 
-  unsigned long tempval = *(unsigned long *)&disk;
+  unsigned long tempval = *(unsigned long *)&total;
   output[0] = tempval & 0x00FF;
   output[1] = (tempval & 0xFF00) >> 8;
   output[2] = (tempval & 0xFF0000) >> 16;
   output[3] = (tempval & 0xFF000000) >> 24;
 
-  tempval = *(unsigned long *)&total;
+  tempval = *(unsigned long *)&disk;
   output[4] = tempval & 0x00FF;
   output[5] = (tempval & 0xFF00) >> 8;
   output[6] = (tempval & 0xFF0000) >> 16;
   output[7] = (tempval & 0xFF000000) >> 24;
 
+  printf("disk: %f\n", disk);
+  printf("totla: %f\n", total);
+  
   cmd_id = 4;
 
   silica_display_send_message(id, (unsigned int)cmd_id, output, 8);

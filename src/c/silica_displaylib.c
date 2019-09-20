@@ -184,7 +184,10 @@ void silica_display_thread(void *arg) {
   int escape_mode = 0;
 
   unsigned char *temp_message = malloc(sizeof(unsigned char) * 256);
-  unsigned char *msg_buffer = malloc(sizeof(unsigned char) * 256);  
+  unsigned char *msg_buffer = malloc(sizeof(unsigned char) * 256);
+
+  int found_match = 0;
+  
   while(global_exit == 0) {
     if( rtqueue_isempty(global_display_queue_out) == 0) {;
       temp_message = rtqueue_deq(global_display_queue_out);
@@ -245,6 +248,7 @@ void silica_display_thread(void *arg) {
 	    if(response_id == temp_message_response->id) {
 	      rtqueue_enq(temp_message_response->response_queue, temp_message);
 	      printf("FOUND!\n");
+	      found_match = 1;
 	      break;
 	    }
 	    temp_message_response = temp_message_response->next;
@@ -252,6 +256,12 @@ void silica_display_thread(void *arg) {
 	  received = 0;
 	  msg_buffer_count = 0;
 	  printf("ZERO'd\n");
+
+	  if( !found_match ) {
+	    rtqueue_enq(temp_message_response->response_queue, temp_message);
+	  } else { 
+	    found_match = 0;
+	  }
 	}
 
       }
