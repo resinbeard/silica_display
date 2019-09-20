@@ -158,43 +158,76 @@ void silica_display_thread(void *arg) {
   _set_interface_attribs (fd, B115200, 0); // set speed to 115,200 bps, 8n1 (no parity)
   _set_blocking (fd, 0);		   // set no blocking
   
-  unsigned char *temp_message = NULL;
-  unsigned char *msg_buffer = NULL;
-  int n, i;
+
+  int n, i, k;
   unsigned int response_id = 0;
   silica_display_message_response_t *temp_message_response = NULL;
-  
+
+  int receiving = 0;
+  int received = 0;
+  unsigned char in_byte;
+  int msg_buffer_count = 0;
+  int escape_mode = 0;
+
+  unsigned char *temp_message = malloc(sizeof(unsigned char) * 256);
+  unsigned char *msg_buffer = malloc(sizeof(unsigned char) * 256);  
   while(global_exit == 0) {
     if( rtqueue_isempty(global_display_queue_out) == 0) {;
       temp_message = rtqueue_deq(global_display_queue_out);
-      printf("deq'd\n");
-
-      printf("sizeof(temp_message): %d\n", sizeof(temp_message));
-      
+        
       write(fd, temp_message, 29);
-      printf("written\n");
     }
 
-    temp_message = malloc(sizeof(unsigned char) * 256);
-    n = read(fd, temp_message, sizeof(unsigned char) * 256);
+    n = read(fd, temp_message, 256);
     if (n > 0) {
 
-      printf("reading %d bytes\n", n);
-
-      response_id = temp_message[2];
-      response_id = response_id << 8;
-      response_id |= temp_message[1];
-
-      printf("------------------------- response_id: %d\n", response_id);
-      printf("temp_message[0]: %d\n", temp_message[0]);
-      if(temp_message[0] == 0x12)
-	printf("OMFG OMFG OMFG OMFG\n");
       
-      temp_message_response = global_message_response_list;
-      while(temp_message_response != NULL) {
-	if(response_id == temp_message_response->id)
-	  rtqueue_enq(temp_message_response->response_queue, temp_message);
-	temp_message_response = temp_message_response->next;
+      for(i=0; i<n; i++) {
+	in_byte = temp_message[i];
+
+	if( receiving ) {
+
+	  msg_buffer[msg_buffer_count] = in_byte;
+
+	  if( escape_mode ) {
+	    escape_mode = 0;
+	  } else if( in_byte == 0x7D) {
+	    escape_mode = 1;
+	  } else if( in_byte == 0x13) {
+	    receiving = 0;
+	    received = 1;
+	  }
+	  msg_buffer_count++;
+
+	} else if( !receiving ) {
+	  if( in_byte == 0x12 ) {
+	    receiving = 1;
+	    msg_buffer[0] = 0x12;
+	    msg_buffer_count = 1;
+	  }
+	}
+	// printf("msg_buffer_count: %d\n", msg_buffer_count);
+	
+	if( received ) {
+	  printf("msg_buffer: ");
+	  for(k=0; k<msg_buffer_count; k++) {
+	    printf("%d,", msg_buffer[k]);
+	  }
+	  printf("\n");
+	  response_id = msg_buffer[1];
+
+
+	  temp_message_response = global_message_response_list;
+	  while(temp_message_response != NULL) {
+	    if(response_id == temp_message_response->id)
+	      rtqueue_enq(temp_message_response->response_queue, temp_message);
+	    temp_message_response = temp_message_response->next;
+	  }
+	  received = 0;
+	  msg_buffer_count = 0;
+	  printf("ZERO'd\n");
+	}
+
       }
     }
     usleep(10);

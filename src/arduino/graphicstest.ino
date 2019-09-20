@@ -142,7 +142,7 @@ void loop() {
       tft.print("\n");
       if( char(global_incoming_msg[81]) == 'B' )
         tft.setTextColor(ST77XX_GREEN);
-	
+
       Serial.write(global_incoming_msg, global_msg_count);
     } else if( cmd == 1 ) {
       // redraw_world();
